@@ -43,6 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Counter.cs" />
+    <Compile Include="CounterBase.cs" />
+    <Compile Include="CounterLNoLock.cs" />
+    <Compile Include="Examples.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

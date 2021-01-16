@@ -10,6 +10,13 @@ namespace Chapter2_Synchronization
     {
         static void Main(string[] args)
         {
+            var example = new Examples();
+
+            //example.BasicAtomicOperations();
+            // example.MutexConstruct();
+            //example.SemaphoreSlimConstruct();
+            // example.AutoResetEvent();
+            example.ManualResetEventSlim();
         }
     }
 }
