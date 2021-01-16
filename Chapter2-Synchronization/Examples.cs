@@ -22,7 +22,7 @@ namespace Chapter2_Synchronization
         private static readonly Dictionary<int, int> _items = new Dictionary<int, int>();
         // Use volatile to indicate a value may be modied by multiple threads
         // compiler will not optimize, and ensures the most up to date value is present
-        private static  volatile bool _isCompleted = false;
+        private static volatile bool _isCompleted = false;
 
 
         static void TestCounter(CounterBase c)
@@ -34,7 +34,7 @@ namespace Chapter2_Synchronization
             }
         }
 
-        static void AccessDataBase(string name, int seconds) 
+        static void AccessDataBase(string name, int seconds)
         {
             Console.WriteLine($"{ name} waits to access a database");
             _semaphore.Wait();
@@ -70,7 +70,7 @@ namespace Chapter2_Synchronization
 
         static void TravelThroughGates(string threadName, int seconds)
         {
-            Console.WriteLine($"{threadName} falls to sleep" );
+            Console.WriteLine($"{threadName} falls to sleep");
             Thread.Sleep(TimeSpan.FromSeconds(seconds));
             Console.WriteLine($"{threadName} waits for the gates to open!");
             _mainEventSlim.Wait();
@@ -99,7 +99,7 @@ namespace Chapter2_Synchronization
                     _rw.EnterReadLock();
                     foreach (var key in _items.Keys)
                     {
-                        Thread.Sleep (TimeSpan.FromSeconds(0.1) );
+                        Thread.Sleep(TimeSpan.FromSeconds(0.1));
                     }
 
                 }
@@ -143,7 +143,7 @@ namespace Chapter2_Synchronization
                     }
                     Thread.Sleep(TimeSpan.FromSeconds(0.1));
                 }
-                
+
                 catch (Exception)
                 {
 
@@ -169,7 +169,7 @@ namespace Chapter2_Synchronization
         static void HybridSpinWait()
         {
             var w = new SpinWait();
-            while (! _isCompleted)
+            while (!_isCompleted)
             {
                 w.SpinOnce();
                 Console.WriteLine(w.NextSpinWillYield);
@@ -182,13 +182,16 @@ namespace Chapter2_Synchronization
             Console.WriteLine("Increment counter");
             var c = new Counter();
 
-            var t1 = new Thread( () => {
+            var t1 = new Thread(() =>
+            {
                 TestCounter(c);
             });
-            var t2 = new Thread(() => {
+            var t2 = new Thread(() =>
+            {
                 TestCounter(c);
             });
-            var t3 = new Thread(() => {
+            var t3 = new Thread(() =>
+            {
                 TestCounter(c);
             });
 
@@ -205,13 +208,16 @@ namespace Chapter2_Synchronization
             Console.WriteLine("Correct counter");
             var c1 = new CounterLNoLock();
 
-            t1 = new Thread(() => {
+            t1 = new Thread(() =>
+            {
                 TestCounter(c1);
             });
-            t2 = new Thread(() => {
+            t2 = new Thread(() =>
+            {
                 TestCounter(c1);
             });
-            t3 = new Thread(() => {
+            t3 = new Thread(() =>
+            {
                 TestCounter(c1);
             });
 
@@ -233,7 +239,7 @@ namespace Chapter2_Synchronization
 
             // Best pracice is to close the mutex property. 
             // wrapping in a using  helps release resource
-            using(var m = new Mutex(false, MutexName))
+            using (var m = new Mutex(false, MutexName))
             {
                 if (!m.WaitOne(TimeSpan.FromSeconds(5), false))
                 {
@@ -250,11 +256,12 @@ namespace Chapter2_Synchronization
         public void SemaphoreSlimConstruct()
         {
             // Creating 6 threads
-            for (int i = 1; i <=6; i++)
+            for (int i = 1; i <= 6; i++)
             {
                 string threadName = $"Thread  {i}";
                 int secondsToWait = 2 + (2 * i);
-                var t = new Thread( () => {
+                var t = new Thread(() =>
+                {
                     AccessDataBase(threadName, secondsToWait);
                 });
                 t.Start();
@@ -263,7 +270,8 @@ namespace Chapter2_Synchronization
 
         public void AutoResetEvent()
         {
-            var t = new Thread( () => {
+            var t = new Thread(() =>
+            {
                 Process(10);
             });
             t.Start();
@@ -282,13 +290,16 @@ namespace Chapter2_Synchronization
 
         public void ManualResetEventSlim()
         {
-            var t1 = new Thread( () => {
+            var t1 = new Thread(() =>
+            {
                 TravelThroughGates("Thread 1", 5);
             });
-            var t2 = new Thread(() => {
+            var t2 = new Thread(() =>
+            {
                 TravelThroughGates("Thread 2", 6);
             });
-            var t3 = new Thread(() => {
+            var t3 = new Thread(() =>
+            {
                 TravelThroughGates("Thread 3", 12);
             });
 
@@ -297,7 +308,7 @@ namespace Chapter2_Synchronization
             t3.Start();
 
             Thread.Sleep(TimeSpan.FromSeconds(6));
-             Console.WriteLine("The gates are now open!");
+            Console.WriteLine("The gates are now open!");
             _mainEventSlim.Set();  /// Opens the gates... thread 1 and thread 2 allowed in
 
             Thread.Sleep(TimeSpan.FromSeconds(2));
@@ -317,14 +328,16 @@ namespace Chapter2_Synchronization
         public void CountDownEvent()
         {
             Console.WriteLine("Starting two operations");
-            var t1 = new Thread( () => {
+            var t1 = new Thread(() =>
+            {
                 PerformOperation("Operation 1 is completed", 4);
-             });
-            var t2 = new Thread(() => {
+            });
+            var t2 = new Thread(() =>
+            {
                 PerformOperation("Operation 2 is completed", 8);
             });
 
-            t1.Start();   
+            t1.Start();
             t2.Start();
 
             _countdown.Wait();   // Will wait.. possibly forever... until all signals are received
@@ -335,10 +348,12 @@ namespace Chapter2_Synchronization
 
         public void BarrierConstruct()
         {
-            var t1 = new Thread( () => {
+            var t1 = new Thread(() =>
+            {
                 PlayMusic("the guitarist", "play an amazing solo", 5);
             });
-            var t2 = new Thread(() => {
+            var t2 = new Thread(() =>
+            {
                 PlayMusic("the singer", "sing his song", 2);
             });
 
