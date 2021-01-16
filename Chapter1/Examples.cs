@@ -6,7 +6,7 @@ using static System.Diagnostics.Process;
 
 namespace Chapter1
 {
-    public class          Examples
+    public class Examples
     {
 
         public static void Count(object iterations)
@@ -94,7 +94,7 @@ namespace Chapter1
             Thread.Sleep(TimeSpan.FromSeconds(2));
             sample.Stop();
         }
-        
+
         static void LockTooMuch(object lock1, object lock2)
         {
             lock (lock1)
@@ -122,11 +122,11 @@ namespace Chapter1
             catch (Exception ex)
             {
 
-                Console.WriteLine($"Exception Handled ...{ex.Message}"); 
+                Console.WriteLine($"Exception Handled ...{ex.Message}");
             }
         }
         // *****  Examples
-                
+
         public void CreateAThread()
         {
             Thread t = new Thread(PrintNumbers);
@@ -212,8 +212,8 @@ namespace Chapter1
             threadOne.Start();
             threadTwo.Start();
 
-            
-            
+
+
 
         }
 
@@ -237,10 +237,11 @@ namespace Chapter1
             threadTwo.Join();
             Console.WriteLine("-------------------------------");
 
-            var threadThree = new Thread(() => CountNumbers(12)) { 
-              Name = "ThreadThreee"
+            var threadThree = new Thread(() => CountNumbers(12))
+            {
+                Name = "ThreadThreee"
             };
-            
+
             threadThree.Start();
             threadThree.Join();
             Console.WriteLine("-------------------------------");
@@ -248,7 +249,7 @@ namespace Chapter1
             int i = 10;
             var threadFour = new Thread(() => PrintNumber(i));
 
-             i = 20;
+            i = 20;
             var threadFive = new Thread(() => PrintNumber(i));
             threadFour.Start();
             threadFive.Start();
@@ -266,7 +267,7 @@ namespace Chapter1
 
             var c = new Counter();
 
-            var t1 = new Thread( () => TestCounter(c));
+            var t1 = new Thread(() => TestCounter(c));
             var t2 = new Thread(() => TestCounter(c));
             var t3 = new Thread(() => TestCounter(c));
 
@@ -324,10 +325,10 @@ namespace Chapter1
                 }
             }
 
-            new Thread( () => LockTooMuch(lock1, lock2)).Start();
+            new Thread(() => LockTooMuch(lock1, lock2)).Start();
 
             Console.WriteLine("---------------------------------------------");
-           
+
             lock (lock2)
             {
 
@@ -357,9 +358,9 @@ namespace Chapter1
             catch (Exception)
             {
 
-                Console.WriteLine("We won't get here!"); 
+                Console.WriteLine("We won't get here!");
             }
         }
 
     }
-} 
+}
