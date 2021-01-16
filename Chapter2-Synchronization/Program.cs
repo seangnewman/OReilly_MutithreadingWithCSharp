@@ -16,7 +16,11 @@ namespace Chapter2_Synchronization
             // example.MutexConstruct();
             //example.SemaphoreSlimConstruct();
             // example.AutoResetEvent();
-            example.ManualResetEventSlim();
+            //example.ManualResetEventSlim();
+            //example.CountDownEvent();
+            //example.BarrierConstruct();
+            //example.ReaderWriterSlimConstruct();
+            example.SpinWaitConstruct();
         }
     }
 }

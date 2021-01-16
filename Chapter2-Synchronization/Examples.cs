@@ -10,13 +10,21 @@ namespace Chapter2_Synchronization
     class Examples
     {
         // restricts access to four threads
-        static SemaphoreSlim _semaphore = new SemaphoreSlim(4);
+        static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(4);
 
-        private static AutoResetEvent _workerEvent = new AutoResetEvent(false);
-        private static AutoResetEvent _mainEvent = new AutoResetEvent(false);
+        private static readonly AutoResetEvent _workerEvent = new AutoResetEvent(false);
+        private static readonly AutoResetEvent _mainEvent = new AutoResetEvent(false);
 
-        private static ManualResetEventSlim _mainEventSlim = new ManualResetEventSlim(false);
-        
+        private static readonly ManualResetEventSlim _mainEventSlim = new ManualResetEventSlim(false);
+        private static readonly CountdownEvent _countdown = new CountdownEvent(2);
+        private static readonly Barrier _barrier = new Barrier(2, b => Console.WriteLine(b.CurrentPhaseNumber + 1));
+        private static readonly ReaderWriterLockSlim _rw = new ReaderWriterLockSlim();
+        private static readonly Dictionary<int, int> _items = new Dictionary<int, int>();
+        // Use volatile to indicate a value may be modied by multiple threads
+        // compiler will not optimize, and ensures the most up to date value is present
+        private static  volatile bool _isCompleted = false;
+
+
         static void TestCounter(CounterBase c)
         {
             for (int i = 0; i < 1000000; i++)
@@ -53,6 +61,13 @@ namespace Chapter2_Synchronization
 
         }
 
+        static void PerformOperation(string message, int seconds)
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(seconds));
+            Console.WriteLine(message);
+            _countdown.Signal();
+        }
+
         static void TravelThroughGates(string threadName, int seconds)
         {
             Console.WriteLine($"{threadName} falls to sleep" );
@@ -60,6 +75,106 @@ namespace Chapter2_Synchronization
             Console.WriteLine($"{threadName} waits for the gates to open!");
             _mainEventSlim.Wait();
             Console.WriteLine($"{threadName} enters the gates!");
+        }
+        static void PlayMusic(string name, string message, int seconds)
+        {
+            for (int i = 1; i < 3; i++)
+            {
+                Console.WriteLine("------------------------------------------------");
+                Thread.Sleep(TimeSpan.FromSeconds(seconds));
+                Console.WriteLine($"{name} starts to {message}");
+                Thread.Sleep(TimeSpan.FromSeconds(seconds));
+                Console.WriteLine($"{name} finishes to {message}");
+                _barrier.SignalAndWait();
+            }
+        }
+
+        static void Read()
+        {
+            Console.WriteLine("Reading contents of a dictionary");
+            while (true)
+            {
+                try
+                {
+                    _rw.EnterReadLock();
+                    foreach (var key in _items.Keys)
+                    {
+                        Thread.Sleep (TimeSpan.FromSeconds(0.1) );
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                finally
+                {
+                    _rw.ExitReadLock();
+                }
+            }
+        }
+
+        static void Write(string threadName)
+        {
+            while (true)
+            {
+                try
+                {
+                    int newKey = new Random().Next(250);
+                    _rw.EnterUpgradeableReadLock();
+                    if (!_items.ContainsKey(newKey))
+                    {
+                        try
+                        {
+                            _rw.EnterWriteLock();
+                            _items[newKey] = 1;
+                            Console.WriteLine($"New key {newKey} is added to a dictinary by a {threadName}");
+                        }
+                        catch (Exception)
+                        {
+
+                            throw;
+                        }
+                        finally
+                        {
+                            _rw.ExitWriteLock();
+                        }
+                    }
+                    Thread.Sleep(TimeSpan.FromSeconds(0.1));
+                }
+                
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                finally
+                {
+                    _rw.ExitUpgradeableReadLock();
+                }
+            }
+        }
+
+        static void UserModeWait()
+        {
+            while (!_isCompleted)
+            {
+                Console.WriteLine(".");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Waiting is complete");
+        }
+
+        static void HybridSpinWait()
+        {
+            var w = new SpinWait();
+            while (! _isCompleted)
+            {
+                w.SpinOnce();
+                Console.WriteLine(w.NextSpinWillYield);
+            }
+            Console.WriteLine("Waiting is complete");
         }
         // ----------------------------------------------
         public void BasicAtomicOperations()
@@ -196,6 +311,74 @@ namespace Chapter2_Synchronization
             Thread.Sleep(TimeSpan.FromSeconds(2));
             Console.WriteLine("The gates have been closed");
             _mainEventSlim.Reset();  // close the gates
+
+        }
+
+        public void CountDownEvent()
+        {
+            Console.WriteLine("Starting two operations");
+            var t1 = new Thread( () => {
+                PerformOperation("Operation 1 is completed", 4);
+             });
+            var t2 = new Thread(() => {
+                PerformOperation("Operation 2 is completed", 8);
+            });
+
+            t1.Start();   
+            t2.Start();
+
+            _countdown.Wait();   // Will wait.. possibly forever... until all signals are received
+            Console.WriteLine("Both operations have been completed.");
+            _countdown.Dispose();
+
+        }
+
+        public void BarrierConstruct()
+        {
+            var t1 = new Thread( () => {
+                PlayMusic("the guitarist", "play an amazing solo", 5);
+            });
+            var t2 = new Thread(() => {
+                PlayMusic("the singer", "sing his song", 2);
+            });
+
+            t1.Start();
+            t2.Start();
+        }
+
+        public void ReaderWriterSlimConstruct()
+        {
+            //ReaderWriterSlim insures thread safety despite 5 concurrent threads
+            new Thread(Read) { IsBackground = true }.Start();
+            new Thread(Read) { IsBackground = true }.Start();
+            new Thread(Read) { IsBackground = true }.Start();
+
+            new Thread(() => Write("Thread 1")) { IsBackground = true }.Start();
+            new Thread(() => Write("Thread 2")) { IsBackground = true }.Start();
+
+            Thread.Sleep(TimeSpan.FromSeconds(20));
+        }
+
+        public void SpinWaitConstruct()
+        {
+
+            //SpinWait  saves CPU time
+
+            var t1 = new Thread(UserModeWait);
+            var t2 = new Thread(HybridSpinWait);
+
+            Console.WriteLine("Running user mode waiting");
+            t1.Start();
+            Thread.Sleep(20);
+            _isCompleted = true;
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+            _isCompleted = false;
+            Console.WriteLine("Running hybrid SpinWait construct waiting");
+            t2.Start();
+            Thread.Sleep(5);
+
+            _isCompleted = true;
 
         }
     }
