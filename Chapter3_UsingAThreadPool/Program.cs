@@ -15,7 +15,10 @@ namespace Chapter3_UsingAThreadPool
             //  example.InvokingADelegateOnThreadPool();
             //example.PostingOnAThreadPool();
             //example.ThreadPoolAndDegreeOfParallelism();
-            example.ImplementingCancellationOption();
+            //example.ImplementingCancellationOption();
+            // example.WaitHandleAndTimeout();
+            //example.UsingATimer();
+            example.BackgroundWorkerComponent();
         }
     }
 }

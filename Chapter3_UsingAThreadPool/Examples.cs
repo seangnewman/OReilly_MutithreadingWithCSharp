@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,8 @@ namespace Chapter3_UsingAThreadPool
 {
     class Examples
     {
-        
+        static  Timer _timer;
+
         private static void Callback(IAsyncResult ar)
         {
             Console.WriteLine("Starting a callback...");
@@ -136,6 +138,108 @@ namespace Chapter3_UsingAThreadPool
             Console.WriteLine("The third task has been completed successfully");
         }
 
+        static  void RunOperations(TimeSpan workerOperationTimeout)
+        {
+          
+            using (var evt = new ManualResetEvent(false))
+            {
+                using (var cts = new CancellationTokenSource())
+                {
+                    Console.WriteLine("Registering timeout operation.....");
+
+                    //Callback occurs when a signal or timeout accurs
+                    var worker = ThreadPool.RegisterWaitForSingleObject(
+                                                                    evt
+                                                                    , (state, isTimedOut) => WorkerOperationWait(cts, isTimedOut)
+                                                                    , null
+                                                                    , workerOperationTimeout
+                                                                    , true);
+                    Console.WriteLine("Starting long running operation.....");
+                    ThreadPool.QueueUserWorkItem(_ => WorkerOperation(cts.Token, evt));
+
+                    Thread.Sleep(workerOperationTimeout.Add(TimeSpan.FromSeconds(2)));
+                    worker.Unregister(evt);
+                }
+            }
+        }
+
+        static  void WorkerOperation(CancellationToken token, ManualResetEvent evt)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+            evt.Set();
+        }
+
+        static void WorkerOperationWait(CancellationTokenSource cts, bool isTimedOut)
+        {
+            if (isTimedOut)
+            {
+                cts.Cancel();
+                Console.WriteLine("Worker operation timed out and was cancelled");
+            }
+            else
+            {
+                Console.WriteLine("Worker operation succeeded.");
+            }
+        }
+
+        static void TimerOperation(DateTime start)
+        {
+            TimeSpan elapsed = DateTime.Now - start;
+            Console.WriteLine($"{elapsed.Seconds} seconds from {start}.  Timer thread pool thread id {Thread.CurrentThread.ManagedThreadId}");
+        }
+
+        static void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Console.WriteLine($"DoWork thread pool thread id: {Thread.CurrentThread.ManagedThreadId}");
+            var bw = (BackgroundWorker)sender;
+
+            for (int i = 1; i <= 100; i++)
+            {
+                if (bw.CancellationPending)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+                if (i % 10 == 0)
+                {
+                    bw.ReportProgress(i);
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(0.1));
+            }
+            e.Result = 42;
+        }
+
+        static void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            Console.WriteLine($"{e.ProgressPercentage}% completed.  Progress thread pool thread id: {Thread.CurrentThread.ManagedThreadId}");
+        }
+
+        static void Worker_Completed(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Console.WriteLine($"Completed pool thread pool thread id: {Thread.CurrentThread.ManagedThreadId}");
+
+            if (e.Error != null)
+            {
+                Console.WriteLine($"Exception {e.Error.Message} has occurred.");
+            }
+            else if (e.Cancelled)
+            {
+                Console.WriteLine($"Operation has been cancelled");
+            }
+            else
+            {
+                Console.WriteLine($"The answer is {e.Result}");
+            }
+        }
+
         //-------------------------------------------------------------------------
 
         public void InvokingADelegateOnThreadPool()
@@ -251,6 +355,68 @@ namespace Chapter3_UsingAThreadPool
 
             Thread.Sleep(TimeSpan.FromSeconds(2));
         }
+
+        public void WaitHandleAndTimeout()
+        {
+            RunOperations(TimeSpan.FromSeconds(5));
+            RunOperations(TimeSpan.FromSeconds(7));
+        }
+
+        public void UsingATimer()
+        {
+            Console.WriteLine("'Press Enter' to stop the timer...");
+            DateTime start = DateTime.Now;
+            _timer = new Timer( _ => TimerOperation(start)
+                                                                                         , null
+                                                                                         ,TimeSpan.FromSeconds(1)    // Start in 1 second
+                                                                                         ,TimeSpan.FromSeconds(2) );  // Run for 2 seconds
+            try
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(6));
+                _timer.Change(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(4));
+                Console.ReadLine();  // Press Enter to end 
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                _timer.Dispose();
+            }
+
+    }
+
+        public void BackgroundWorkerComponent()
+        {
+            var bw = new BackgroundWorker();
+            bw.WorkerReportsProgress = true;
+            bw.WorkerSupportsCancellation = true;
+
+            // EAP Event-based Asynchronous Pattern
+            // Subscriber to the three events and corresponding event handlers
+            bw.DoWork += Worker_DoWork;
+            bw.ProgressChanged += Worker_ProgressChanged;
+            bw.RunWorkerCompleted += Worker_Completed;
+            
+             // End EAP Pattern
+
+            bw.RunWorkerAsync();
+
+            Console.WriteLine("Press C to cancel work");
+
+            do
+            {
+                if (Console.ReadKey(true).KeyChar == 'C')
+                {
+                    bw.CancelAsync();
+                }
+            } while (bw.IsBusy);
+
+        }
+
+      
     }
 
     delegate string RunOnThreadPool(out int threadID);
