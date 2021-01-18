@@ -21,7 +21,8 @@ namespace Chapter1
             // example.PassingThreadParameters();
             //example.ThreadUsingLocks();
             //example.ThreadLocksWithMonitors();
-            example.ThreadExceptions();
+            //example.ThreadExceptions();
+             
             
         }
     }
