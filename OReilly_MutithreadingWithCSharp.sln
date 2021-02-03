@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter2-Synchronization", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter3_UsingAThreadPool", "Chapter3_UsingAThreadPool\Chapter3_UsingAThreadPool.csproj", "{E231A760-309A-4689-9445-694D5F4DA06C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter4_UsingTaskParallelLibrary", "Chapter4_UsingTaskParallelLibrary\Chapter4_UsingTaskParallelLibrary.csproj", "{88680020-15CB-4BD4-9A37-E94E09E93ADB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E231A760-309A-4689-9445-694D5F4DA06C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E231A760-309A-4689-9445-694D5F4DA06C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E231A760-309A-4689-9445-694D5F4DA06C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88680020-15CB-4BD4-9A37-E94E09E93ADB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88680020-15CB-4BD4-9A37-E94E09E93ADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88680020-15CB-4BD4-9A37-E94E09E93ADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88680020-15CB-4BD4-9A37-E94E09E93ADB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
