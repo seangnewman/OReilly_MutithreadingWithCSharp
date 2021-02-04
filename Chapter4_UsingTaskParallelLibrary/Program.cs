@@ -18,7 +18,8 @@ namespace Chapter4_UsingTaskParallelLibrary
             // example.ConvertingAPMToTasks();
             //example.ConvertingEAPToTasks();
             //example.CancellationOption();
-            example.HandlingExceptions();
+            //example.HandlingExceptions();
+            example.RunningTasksInParallel();
 
         }
 
