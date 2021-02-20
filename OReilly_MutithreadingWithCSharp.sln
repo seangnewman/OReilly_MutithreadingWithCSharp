@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter4_UsingTaskParallelL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter4_TaskScheduler", "Chapter4_TaskScheduler\Chapter4_TaskScheduler.csproj", "{F1ABB6D3-5375-4C6D-AC43-0CD654F9F056}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter6_UsingCSharp6", "Chapter6_UsingCSharp6\Chapter6_UsingCSharp6.csproj", "{E9E127FB-308A-4042-BFA9-B7AC55CBCCBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F1ABB6D3-5375-4C6D-AC43-0CD654F9F056}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1ABB6D3-5375-4C6D-AC43-0CD654F9F056}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1ABB6D3-5375-4C6D-AC43-0CD654F9F056}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9E127FB-308A-4042-BFA9-B7AC55CBCCBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9E127FB-308A-4042-BFA9-B7AC55CBCCBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9E127FB-308A-4042-BFA9-B7AC55CBCCBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9E127FB-308A-4042-BFA9-B7AC55CBCCBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
