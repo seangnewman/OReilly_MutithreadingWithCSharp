@@ -9,7 +9,9 @@ namespace Chapter6_ConcurrentCollections
 
             //example.UsingConcurrentDictionary();
             //example.ImplementingAsyncProcessingUsingConcurrentQueue();
-            example.ImplementingAsyncProcessingUsingConcurrentStack();
+            //example.ImplementingAsyncProcessingUsingConcurrentStack();
+            //example.CreateScalableCrawlerWithConcurrentBag();
+            example.AsynchronousProcessingWithBlockingCollection();
         }
     }
 }
