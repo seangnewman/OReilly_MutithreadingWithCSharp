@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter5_UsingCSharp6", "Ch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter6_ConcurrentCollections", "Chapter6_ConcurrentCollections\Chapter6_ConcurrentCollections.csproj", "{C2AF0C58-6932-41F0-9AC7-F77EB02C9B6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter7_PLINQ", "Chapter7_PLINQ\Chapter7_PLINQ.csproj", "{F11EE1E2-61E9-4C47-9582-E55E93D78888}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{C2AF0C58-6932-41F0-9AC7-F77EB02C9B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2AF0C58-6932-41F0-9AC7-F77EB02C9B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2AF0C58-6932-41F0-9AC7-F77EB02C9B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F11EE1E2-61E9-4C47-9582-E55E93D78888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F11EE1E2-61E9-4C47-9582-E55E93D78888}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F11EE1E2-61E9-4C47-9582-E55E93D78888}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F11EE1E2-61E9-4C47-9582-E55E93D78888}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
