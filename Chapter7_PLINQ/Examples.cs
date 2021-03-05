@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,15 +11,23 @@ namespace Chapter7_PLINQ
 {
     public class Examples
     {
-        static string EmulateProcessing(string taskName)
+        //static string EmulateProcessing(string taskName)
+        //{
+        //    Thread.Sleep(TimeSpan.FromMilliseconds(new Random(DateTime.Now.Millisecond).Next(250, 350)));
+
+        //    Console.WriteLine($"{taskName} task was processed on a thread id  {Thread.CurrentThread.ManagedThreadId }");
+
+        //    return taskName;
+        //}
+
+        static string EmulateProcessing(string typeName)
         {
-            Thread.Sleep(TimeSpan.FromMilliseconds(new Random(DateTime.Now.Millisecond).Next(250, 350)));
+            Thread.Sleep(TimeSpan.FromMilliseconds(150));
 
-            Console.WriteLine($"{taskName} task was processed on a thread id  {Thread.CurrentThread.ManagedThreadId }");
+            Console.WriteLine($"{typeName} type  was processed on a thread id  {Thread.CurrentThread.ManagedThreadId }. Has { (typeName.Length % 2 == 0 ? "even" : "odd")} length");
 
-            return taskName;
+            return typeName;
         }
-
 
         private void PrintInfo(string typeName)
         {
@@ -26,13 +35,60 @@ namespace Chapter7_PLINQ
             Console.WriteLine($"{typeName} type was printed on a thread id {Thread.CurrentThread.ManagedThreadId}");
         }
 
+        //private static IEnumerable<string> GetTypes()
+        //{
+        //    return from assembly in AppDomain.CurrentDomain.GetAssemblies()
+        //           from type in assembly.GetExportedTypes()
+        //           where type.Name.StartsWith("Web")
+        //           orderby type.Name.Length
+        //           select type.Name;
+        //}
+
         private static IEnumerable<string> GetTypes()
         {
-            return from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                   from type in assembly.GetExportedTypes()
+            var types = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(a => a.GetExportedTypes());
+
+            return from type in types
                    where type.Name.StartsWith("Web")
-                   orderby type.Name.Length
                    select type.Name;
+        }
+
+
+        private static ConcurrentDictionary<char, int> MergeAccumulators(ConcurrentDictionary<char, int> total, ConcurrentDictionary<char, int> taskTotal)
+        {
+            foreach (var key in taskTotal.Keys)
+            {
+                if (total.ContainsKey(key))
+                {
+                    total[key] = total[key] + taskTotal[key];
+                }
+                else
+                {
+                    total[key] = taskTotal[key];
+                }
+            }
+            Console.WriteLine("---------");
+            Console.WriteLine($"Total aggregate value was calculated on a thread id {Thread.CurrentThread.ManagedThreadId}");
+            return total;
+        }
+
+        private static ConcurrentDictionary<char, int> AccumulateLettersInformation(ConcurrentDictionary<char, int> taskTotal, string item)
+        {
+            foreach (var c in item)
+            {
+                if (taskTotal.ContainsKey(c))
+                {
+                    taskTotal[c] = taskTotal[c] + 1;
+                }
+                else
+                {
+                    taskTotal[c] = 1;
+                }
+            }
+            Console.WriteLine($"{item} type was aggregated on a thread id {Thread.CurrentThread.ManagedThreadId}");
+            return taskTotal;
         }
 
 
@@ -149,7 +205,7 @@ namespace Chapter7_PLINQ
 
         }
 
-        public  void TweakingParametersOfAPLINQQuery()
+        public void TweakingParametersOfAPLINQQuery()
         {
             var parallelQuery = from t in GetTypes().AsParallel()
                                 select EmulateProcessing(t);
@@ -168,7 +224,7 @@ namespace Chapter7_PLINQ
             {
                 Console.WriteLine("----------");
                 Console.WriteLine("Operation has been cancelled");
-                
+
             }
 
             Console.WriteLine("-------------");
@@ -182,5 +238,98 @@ namespace Chapter7_PLINQ
 
         }
 
+        public void HandlingExceptionsInPLINQ()
+        {
+            IEnumerable<int> numbers = Enumerable.Range(-5, 10);
+
+            var query = from number in numbers
+                        select 100 / number;
+
+            try
+            {
+                foreach (var n in query)
+                {
+                    Console.WriteLine(n);
+                }
+            }
+            catch (DivideByZeroException)
+            {
+
+                Console.WriteLine("Divided by zero!");
+            }
+
+            Console.WriteLine("----------");
+            Console.WriteLine("Sequential LINQ query processing");
+            Console.WriteLine();
+
+            var parallelQuery = from number in numbers.AsParallel()
+                                select 100 / number;
+
+            try
+            {
+                parallelQuery.ForAll(Console.WriteLine);
+            }
+            catch (DivideByZeroException)
+            {
+                Console.WriteLine("Divided by zero - usual exception handler!");
+            }
+            catch (AggregateException ex)
+            {
+                ex.Flatten().Handle(e =>
+                {
+                    if (e is DivideByZeroException)
+                    {
+                        Console.WriteLine("Divide by zero - aggregate exception handler!");
+                        return true;
+                    }
+                    return false;
+                });
+            }
+
+            Console.WriteLine("_______");
+            Console.WriteLine("Parallel LINQ query processing and results merging");
+
+        }
+
+        public void ManagingDataPartioningPLINQQuery()
+        {
+            var timer = Stopwatch.StartNew();
+
+            var partitioner = new StringPartitioner(GetTypes());
+
+            var parallelQuery = from t in partitioner.AsParallel()
+                                    //.WithDegreeOfParallelism(1)
+                                select EmulateProcessing(t);
+
+            parallelQuery.ForAll(PrintInfo);
+            int count = parallelQuery.Count();
+            timer.Stop();
+            Console.WriteLine("------------------");
+            Console.WriteLine($"Total items processed: {count}");
+            Console.WriteLine($"Time elapsed: {timer.Elapsed}");
+        }
+
+        public void CreatingACustomAggregatorforPLINQ()
+        {
+            var parallelQuery = from t in GetTypes().AsParallel()
+                                select t;
+
+            var parallelAggregator = parallelQuery.Aggregate(
+                                                                                                () => new ConcurrentDictionary<char, int>(),
+                                                                                               (taskTotal, item) => AccumulateLettersInformation(taskTotal, item),
+                                                                                               (total, taskTotal) => MergeAccumulators(total, taskTotal),
+                                                                                               total => total);
+            Console.WriteLine();
+            Console.WriteLine("There were the following letters in type names");
+            var orderedKeys = from k in parallelAggregator.Keys
+                              orderby parallelAggregator[k] descending
+                              select k;
+            foreach (var c in orderedKeys)
+            {
+                Console.WriteLine($"Letter '{c}' ----- {parallelAggregator[c]} times");
+            }
+
+
+        }
     }
 }

@@ -14,7 +14,10 @@ namespace Chapter7_PLINQ
 
             //examples.UsingTheParallelClass();
             //examples.ParallelizingALINQQuery();
-            examples.TweakingParametersOfAPLINQQuery();
+            //examples.TweakingParametersOfAPLINQQuery();
+            //examples.HandlingExceptionsInPLINQ();
+            //examples.ManagingDataPartioningPLINQQuery();
+            examples.CreatingACustomAggregatorforPLINQ();
         }
     }
 }
