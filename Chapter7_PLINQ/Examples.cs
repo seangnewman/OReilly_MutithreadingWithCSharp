@@ -34,7 +34,7 @@ namespace Chapter7_PLINQ
             Thread.Sleep(TimeSpan.FromMilliseconds(150));
             Console.WriteLine($"{typeName} type was printed on a thread id {Thread.CurrentThread.ManagedThreadId}");
         }
-
+ 
         //private static IEnumerable<string> GetTypes()
         //{
         //    return from assembly in AppDomain.CurrentDomain.GetAssemblies()
