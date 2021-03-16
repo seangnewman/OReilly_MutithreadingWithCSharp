@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter7_PLINQ", "Chapter7_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter8_ReactiveExtensions", "Chap8_ReactiveExtensions\Chapter8_ReactiveExtensions.csproj", "{85CA4046-4B99-4044-83DF-4D74676A1CC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chapter9_UsingAsynchronousIO", "Chapter9_UsingAsynchronousIO\Chapter9_UsingAsynchronousIO.csproj", "{544B7B27-4522-4A1D-9D6B-B845CC5A88F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{85CA4046-4B99-4044-83DF-4D74676A1CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85CA4046-4B99-4044-83DF-4D74676A1CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85CA4046-4B99-4044-83DF-4D74676A1CC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{544B7B27-4522-4A1D-9D6B-B845CC5A88F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{544B7B27-4522-4A1D-9D6B-B845CC5A88F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{544B7B27-4522-4A1D-9D6B-B845CC5A88F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{544B7B27-4522-4A1D-9D6B-B845CC5A88F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
